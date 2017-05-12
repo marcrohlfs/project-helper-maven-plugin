@@ -19,33 +19,40 @@ import java.util.List;
 /**
  * TODO Write Javadoc
  */
+@SuppressWarnings("unused")
 @Mojo(name = "generate-view", aggregator = true)
 public class GenerateViewMojo extends AbstractMojo {
 
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "project-views", property = "outputDir", required = true)
     private String outputBaseDirectory;
 
+    @SuppressWarnings("unused")
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
+
+    @SuppressWarnings({"unused", "MismatchedQueryAndUpdateOfCollection"})
     @Parameter(defaultValue = "${reactorProjects}", required = true, readonly = true)
     private List<MavenProject> reactorProjects;
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject aggregatorProject;
-
+    @SuppressWarnings("unused")
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession mavenSession;
+    private MavenSession session;
 
+    /** {@inheritDoc} */
+    @Override
     public void execute() throws MojoExecutionException {
 
-        final MavenExecutionRequest request = this.mavenSession.getRequest();
+        final MavenExecutionRequest request = this.session.getRequest();
         final String viewProjectName = generateViewProjectName(request.getSelectedProjects());
 
         final MavenProject viewProject = new MavenProject();
-        viewProject.setModelVersion(this.aggregatorProject.getModelVersion());
-        viewProject.setGroupId(this.aggregatorProject.getGroupId());
+        viewProject.setModelVersion(this.project.getModelVersion());
+        viewProject.setGroupId(this.project.getGroupId());
         viewProject.setArtifactId(viewProjectName);
         viewProject.setPackaging("pom");
 
-        final Path viewRootPath = FileSystems.getDefault().getPath(this.mavenSession.getExecutionRootDirectory(), this.outputBaseDirectory, viewProjectName);
+        final Path viewRootPath = FileSystems.getDefault().getPath(this.session.getExecutionRootDirectory(), this.outputBaseDirectory, viewProjectName);
         final List<String> viewProjectModules = viewProject.getModules();
         for (final MavenProject project : this.reactorProjects) {
 
