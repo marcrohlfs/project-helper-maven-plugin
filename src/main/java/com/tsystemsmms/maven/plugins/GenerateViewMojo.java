@@ -19,8 +19,8 @@ import java.util.List;
 /**
  * TODO Write Javadoc
  */
-@Mojo(name = "generate-project-view", aggregator = true)
-public class GenerateProjectViewMojo extends AbstractMojo {
+@Mojo(name = "generate-view", aggregator = true)
+public class GenerateViewMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "project-views", property = "outputDir", required = true)
     private String outputBaseDirectory;
