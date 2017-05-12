@@ -8,6 +8,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>Project Helper Maven Plugin</name>
+    <description>Provides helper goals for the work with maven projects</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,7 +41,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.5</version>
                 <configuration>
                     <goalPrefix>project-helper-maven-plugin</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>

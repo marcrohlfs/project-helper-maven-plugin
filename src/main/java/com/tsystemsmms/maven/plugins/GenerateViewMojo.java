@@ -17,24 +17,34 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * TODO Write Javadoc
+ * Creates a <i>pom.xml</i> file that provides a lightweight view on a (huge) multi project using <i>modules</i>
+ * definitions.
+ *
+ * @author <a href="mailto:Marc.Rohlfs@t-systems.com">Marc Rohlfs, T-Systems Multimedia Solutions GmbH</a>
  */
 @SuppressWarnings("unused")
 @Mojo(name = "generate-view", aggregator = true)
 public class GenerateViewMojo extends AbstractMojo {
 
+    /** The name of the base directory below the execution root directory, where the generate view projects are placed. */
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "project-views", property = "outputDir", required = true)
     private String outputBaseDirectory;
 
+    /**
+     * The base project of the build. When a project list is specified, this is the first project in the build reactor.
+     * Otherwise it is (most likely) the execution root project.
+     */
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
+    /** The current list of projects being included in the build. */
     @SuppressWarnings({"unused", "MismatchedQueryAndUpdateOfCollection"})
     @Parameter(defaultValue = "${reactorProjects}", required = true, readonly = true)
     private List<MavenProject> reactorProjects;
 
+    /** The current build session instance. This is used to get information about the command invocation. */
     @SuppressWarnings("unused")
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
