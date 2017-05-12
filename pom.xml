@@ -9,6 +9,15 @@
 
     <name>Project Helper Maven Plugin</name>
     <description>Provides helper goals for the work with maven projects</description>
+    <inceptionYear>2017</inceptionYear>
+    <licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>https://mitlicense.org</url>
+            <distribution>repo</distribution>
+            <comments>All source code is under the MIT license</comments>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
