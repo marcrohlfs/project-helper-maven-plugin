@@ -28,7 +28,7 @@ public class GenerateViewMojo extends AbstractMojo {
 
     /** The name of the base directory below the execution root directory, where the generate view projects are placed. */
     @SuppressWarnings("unused")
-    @Parameter(defaultValue = "project-views", property = "outputDir", required = true)
+    @Parameter(defaultValue = "${session.executionRootDirectory}/project-views", property = "outputBaseDirectory", required = true)
     private String outputBaseDirectory;
 
     /**
@@ -62,7 +62,7 @@ public class GenerateViewMojo extends AbstractMojo {
         viewProject.setArtifactId(viewProjectName);
         viewProject.setPackaging("pom");
 
-        final Path viewRootPath = FileSystems.getDefault().getPath(this.session.getExecutionRootDirectory(), this.outputBaseDirectory, viewProjectName);
+        final Path viewProjectBasedir = this.calcViewProjectBasedir(viewProjectName);
         final List<String> viewProjectModules = viewProject.getModules();
         for (final MavenProject project : this.reactorProjects) {
 
@@ -73,12 +73,12 @@ public class GenerateViewMojo extends AbstractMojo {
             } else {
                 this.getLog().debug("Adding module " + name + " (" + packaging + ")");
                 final String projectPath = project.getBasedir().getPath();
-                final Path relativePath = viewRootPath.relativize(FileSystems.getDefault().getPath(projectPath));
+                final Path relativePath = viewProjectBasedir.relativize(FileSystems.getDefault().getPath(projectPath));
                 viewProjectModules.add(relativePath.toString());
             }
         }
 
-        final File outputFile = new File(viewRootPath.toFile(), "pom.xml");
+        final File outputFile = new File(viewProjectBasedir.toFile(), "pom.xml");
         try {
             new DefaultModelWriter().write(outputFile, null, viewProject.getModel());
             this.getLog().info("Generated " + outputFile);
@@ -106,5 +106,14 @@ public class GenerateViewMojo extends AbstractMojo {
         projectName.append("_view");
 
         return projectName.toString();
+    }
+
+    private Path calcViewProjectBasedir(final String viewProjectName) {
+        final Path viewRootPath = FileSystems.getDefault().getPath(this.outputBaseDirectory, viewProjectName);
+        if (viewRootPath.isAbsolute()) {
+            return viewRootPath;
+        } else {
+            return FileSystems.getDefault().getPath(this.session.getExecutionRootDirectory(), this.outputBaseDirectory, viewProjectName);
+        }
     }
 }
