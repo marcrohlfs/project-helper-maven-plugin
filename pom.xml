@@ -19,6 +19,19 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>mrro</id>
+            <name>Marc Rohlfs</name>
+            <email>Marc.Rohlfs@t-systems.com</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
