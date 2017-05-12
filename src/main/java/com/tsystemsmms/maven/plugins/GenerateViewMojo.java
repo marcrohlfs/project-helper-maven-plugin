@@ -1,7 +1,6 @@
 package com.tsystemsmms.maven.plugins;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.io.DefaultModelWriter;
 import org.apache.maven.plugin.AbstractMojo;
@@ -66,13 +65,34 @@ public class GenerateViewMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
 
+    /**
+     * The name (artifact ID) of the generated view project. When the {@code viewProjectName} is not specified, it will
+     * be calculated using the following rules:
+     * <ul>
+     * <li>
+     * If a project list ({@code -pl} or {@code --projects}) is specified, the artifact IDs of the project list elements
+     * will be concatenated (using an underscore as separator). The generated view project name will be provided with
+     * the suffix {@code _view}.
+     * </li>
+     * <li>
+     * If no project list ({@code -pl} or {@code --projects}) is specified, the {@code viewProjectName} will simply be
+     * {@code my-project_view}.
+     * </li>
+     * </ul>
+     * <p>
+     * <p>
+     * A comma-separated list of packaging types. Projects with the specified packaging types will not be added to the
+     * generated view project.
+     */
+    @Parameter(property = "viewProjectName")
+    private String viewProjectName;
+
     /** {@inheritDoc} */
     @Override
     public void execute() throws MojoExecutionException {
         this.init();
 
-        final MavenExecutionRequest request = this.session.getRequest();
-        final String viewProjectName = generateViewProjectName(request.getSelectedProjects());
+        final String viewProjectName = this.calcViewProjectName();
 
         final MavenProject viewProject = new MavenProject();
         viewProject.setModelVersion(this.project.getModelVersion());
@@ -121,23 +141,25 @@ public class GenerateViewMojo extends AbstractMojo {
         }
     }
 
-    private static String generateViewProjectName(final List<String> selectedProjects) {
+    private String calcViewProjectName() {
         final StringBuilder projectName = new StringBuilder();
 
-        for (final String selectedProject : selectedProjects) {
-
-            if (projectName.length() > 0) {
-                projectName.append("_");
+        if (StringUtils.isNotBlank(this.viewProjectName)) {
+            projectName.append(this.viewProjectName);
+        } else {
+            for (final String selectedProject : this.session.getRequest().getSelectedProjects()) {
+                if (projectName.length() > 0) {
+                    projectName.append("_");
+                }
+                projectName.append(StringUtils.removeAll(selectedProject, ".*[:/]"));
             }
 
-            projectName.append(StringUtils.removeAll(selectedProject, ".*[:/]"));
-        }
+            if (projectName.length() == 0) {
+                projectName.append("my-project");
+            }
 
-        if (projectName.length() == 0) {
-            projectName.append("my-project");
+            projectName.append("_view");
         }
-
-        projectName.append("_view");
 
         return projectName.toString();
     }
