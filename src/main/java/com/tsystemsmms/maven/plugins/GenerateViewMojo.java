@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,6 +26,22 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Mojo(name = "generate-view", aggregator = true)
 public class GenerateViewMojo extends AbstractMojo {
+
+    /**
+     * A comma-separated list of packaging types. Projects with the specified packaging types will not be added to the
+     * generated view project.
+     */
+    @Parameter(property = "excludedPackagingTypes")
+    private String excludedPackagingTypes;
+
+    private List<String> excludedPackagingTypesList;
+
+    /**
+     * Denotes if only leaf project are added for the generated view project or if projects that contain sub modules
+     * are also added.
+     */
+    @Parameter(defaultValue = "true", property = "onlyLeafProjects")
+    private boolean onlyLeafProjects;
 
     /** The name of the base directory below the execution root directory, where the generate view projects are placed. */
     @SuppressWarnings("unused")
@@ -52,6 +69,7 @@ public class GenerateViewMojo extends AbstractMojo {
     /** {@inheritDoc} */
     @Override
     public void execute() throws MojoExecutionException {
+        this.init();
 
         final MavenExecutionRequest request = this.session.getRequest();
         final String viewProjectName = generateViewProjectName(request.getSelectedProjects());
@@ -67,14 +85,13 @@ public class GenerateViewMojo extends AbstractMojo {
         for (final MavenProject project : this.reactorProjects) {
 
             final String name = project.getName();
-            final String packaging = project.getPackaging();
-            if ("pom".equals(packaging)) {
-                this.getLog().debug("Not adding module " + name + " (" + packaging + ")");
-            } else {
-                this.getLog().debug("Adding module " + name + " (" + packaging + ")");
+            if (this.isAllowedForView(project)) {
+                this.getLog().debug("Adding module " + name);
                 final String projectPath = project.getBasedir().getPath();
                 final Path relativePath = viewProjectBasedir.relativize(FileSystems.getDefault().getPath(projectPath));
                 viewProjectModules.add(relativePath.toString());
+            } else {
+                this.getLog().debug("Omitting module " + name);
             }
         }
 
@@ -84,6 +101,23 @@ public class GenerateViewMojo extends AbstractMojo {
             this.getLog().info("Generated " + outputFile);
         } catch (final IOException e) {
             this.getLog().error("Cannot write " + outputFile, e);
+        }
+    }
+
+    private void init() {
+        if (StringUtils.isNotBlank(this.excludedPackagingTypes)) {
+            this.excludedPackagingTypesList = Arrays.asList(StringUtils.split(this.excludedPackagingTypes, ","));
+        }
+    }
+
+    @SuppressWarnings("RedundantIfStatement")
+    private boolean isAllowedForView(final MavenProject project) {
+        if (this.onlyLeafProjects && !project.getModules().isEmpty()) {
+            return false;
+        } else if (this.excludedPackagingTypesList != null && this.excludedPackagingTypesList.contains(project.getPackaging())) {
+            return false;
+        } else {
+            return true;
         }
     }
 
