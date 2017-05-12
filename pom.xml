@@ -32,6 +32,12 @@
         </developer>
     </developers>
 
+    <scm>
+        <url>https://github.com/marcrohlfs/project-helper-maven-plugin</url>
+        <connection>scm:git:https://github.com/marcrohlfs/project-helper-maven-plugin.git</connection>
+        <developerConnection>scm:git:https://github.com/marcrohlfs/project-helper-maven-plugin.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
